@@ -34,19 +34,26 @@ local function close_card_menu()
     Card_bufh = nil
 end
 
+local function getCardContents(cur_line)
+    -- local file_path = vim.api.nvim_get_runtime_file("FLASH_DECK/hello.md", false)[1]
+    -- return vim.api.nvim_command("$read "..file_path)
+    -- local cur_line = api.nvim_get_current_line()
+    local file_path = "$read "..cur_line
+    vim.api.nvim_command(file_path)
+    vim.api.nvim_command("norm! ggdd")
+end
+
 local function toggle_card()
     if Card_win_id ~= nil and api.nvim_win_is_valid(Card_win_id) then
-        close_menu()
+        close_card_menu()
         return
     end
 
-    -- if Card_win_id ~= nil then
-    --     open_menu()
-    --     return
-    -- end
-
+    local cur_line = api.nvim_get_current_line():match("FLASH_DECK/.*md")
+    -- local card_id = cur_line
+    -- set card_id to be the contents of the flashcard
     local win_info = createFloatingWindow()
-    local contents = {}
+    -- local contents = {}
     -- contents[1] = card_id
 
     Card_win_id = win_info.win_id
@@ -54,7 +61,7 @@ local function toggle_card()
 
     api.nvim_win_set_option(Card_win_id, "number", true)
     api.nvim_buf_set_name(Card_bufh, "card_menu")
-    api.nvim_buf_set_lines(Card_bufh, 0, #contents, false, contents)
+    -- api.nvim_buf_set_lines(Card_bufh, 0, #contents, false, contents)
     api.nvim_buf_set_option(Card_bufh, "filetype", "vimwiki")
     -- api.nvim_buf_set_option(Card_bufh, "buftype", "acwrite")
     api.nvim_buf_set_option(Card_bufh, "bufhidden", "delete")
@@ -65,6 +72,7 @@ local function toggle_card()
         ":lua toggle_fwin()<CR>",
         { silent = true }
     )
+    getCardContents(cur_line)
 end
 
 -- local function createFloatingWindow()
@@ -91,9 +99,9 @@ local function onResize()
 end
 
 return {
-  createFloatingWindow = createFloatingWindow,
-  close_card_menu = close_card_menu,
-  toggle_card = toggle_card,
-  onResize = onResize
+    createFloatingWindow = createFloatingWindow,
+    close_card_menu = close_card_menu,
+    toggle_card = toggle_card,
+    getCardContents = getCardContents,
+    onResize = onResize
 }
-
